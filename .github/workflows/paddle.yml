@@ -13,7 +13,6 @@ jobs:
         id: cuda-toolkit
         with:
           cuda: '12.8.1'
-          method: 'network'
           use-github-cache: false
       - name: Prepare CUDNN
         run: |
@@ -21,20 +20,22 @@ jobs:
           (new-object System.Net.WebClient).DownloadFile('https://developer.download.nvidia.com/compute/cudnn/redist/cudnn/windows-x86_64/cudnn-windows-x86_64-9.8.0.87_cuda12-archive.zip','cudnn.zip')
           mkdir cudnn && tar -xf cudnn.zip --strip-components=1 -C cudnn
           cp -r -Force cudnn\* "${{ steps.cuda-toolkit.outputs.CUDA_PATH }}"
-      - name: Build Paddle
-        run: |
-          cd C:\ ; git clone --depth 1 https://github.com/PaddlePaddle/Paddle ; cd Paddle
-          mkdir build ; cd build
-          conda create -n paddle_build python=3.12 -y
-          conda activate paddle_build
-          pip install -r ..\python\requirements.txt
-          cmake .. -GNinja -DCMAKE_BUILD_TYPE=Release -DWITH_GPU=ON -DWITH_UNITY_BUILD=ON -DWITH_DISTRIBUTE=ON -DCUDA_ARCH_NAME=All
-          ninja
-          7z a C:\paddle_cu128_cudnn9.8.7z C:\Paddle\build\python\dist\*
+      - uses: conda-incubator/setup-miniconda@v3
+        with:
+          auto-update-conda: true
+          python-version: 3.12
       - uses: ilammy/msvc-dev-cmd@v1
         with:
           arch: amd64
           toolset: 14.29
+      - name: Build Paddle
+        run: |
+          cd C:\ ; git clone --depth 1 https://github.com/PaddlePaddle/Paddle ; cd Paddle
+          mkdir build ; cd build
+          pip install -r ..\python\requirements.txt
+          cmake .. -GNinja -DCMAKE_BUILD_TYPE=Release -DWITH_GPU=ON -DWITH_UNITY_BUILD=ON -DWITH_DISTRIBUTE=ON -DCUDA_ARCH_NAME=All
+          ninja
+          7z a C:\paddle_cu128_cudnn9.8.7z C:\Paddle\build\python\dist\*
       - uses: actions/upload-artifact@v4
         with:
           name: paddle_cu128_cudnn9.8
