@@ -14,6 +14,8 @@ jobs:
         with:
           cuda: '12.8.1'
           method: 'network'
+          use-github-cache: false
+          use-local-cache: false
       - name: Prepare CUDNN
         run: |
           cd C:\
