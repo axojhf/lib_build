@@ -3,7 +3,7 @@ name: Paddle Build
 on:
   push:
     branches:
-      - main
+      - master
 jobs:
   Paddle-Build:
     name: Paddle Build
