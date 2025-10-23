@@ -13,6 +13,7 @@ jobs:
         id: cuda-toolkit
         with:
           cuda: '12.8.1'
+          method: 'network'
       - name: Prepare CUDNN
         run: |
           cd C:\
